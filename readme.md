@@ -1,4 +1,4 @@
-# 深度学习笔记
+# DeepLearning Notes
 ## Author: Feiyang Huang
 
 ---
