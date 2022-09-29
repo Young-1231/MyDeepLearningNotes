@@ -1,0 +1,5 @@
+# NN model
+## RNN
+
+### GRU
+
