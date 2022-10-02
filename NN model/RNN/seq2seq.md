@@ -10,3 +10,7 @@ $$
 encoder通过选定的函数$q$,将所有时间步的隐状态转换为context vector$$
 {\bf{c}} = q (\bf{h_1}, \cdots, \bf{h_T})
 $$
+比如, 当选择$q({\bf{h}}_1,\cdots,{\bf{h}}_T)={\bf{f}}_T$, context vector 仅仅是输入序列在最后时刻的隐状态${\bf{h}}_T$
+
+#### Decoder
+encoder输出的context vector ${\bf{c}}$对整个输入序列$x_1,\dots,x_{T}$进行编码。来自train dataset的输出序列$y_1,y_2,\cdots,y_{T'}$,对于每个时间步$t'$(与输入序列或编码器的时间步$t$不同), decoder输出$y_{t'}$的概率取决于先前的输出子序列$y_1,\cdots,y_{t'-1}$和context vector${\bf{c}}$, 即$P(y_{t'}|y_1,\cdots,y_{t'-1},{\bf{c}})$
