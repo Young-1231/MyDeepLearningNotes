@@ -14,7 +14,31 @@ Var[y_l]&=n_lVar[w_lx_l] \\ &=n_l(E[(w_lx_l)^2]-E^2[w_lx_l]) \\ &=n_l(E[w_l^2]E[
 \end{aligned}
 $$
 
+#### fan_in&fan_out
+> fan(in dictionary): disperse or radiate from a central point to cover a wide area: 从一个中心点分散或辐射到一个大范围。
+> 
+而在DeepLearning中 **central point** 对应一个layer。
+例如在linear层中, input layer$\in \mathbb{R}^{m}$, output_layer$\in \mathbb{R}^{n}$，这包含一个weight matrix$\in \mathbb{R}^{n\times m}$
+把layer作为fan所对应的 **central point**
+那么: 
+* 该层的input就是**fan_in**
+* 该层的output就是**fan_out**
+在此情况下,fan_in = m, fan_out = n
 
+##### PyTorch中计算fan_in和fan_out
+* 方法一: 同时计算fan_in 和 fan_out
+```python
+m, n = 4, 6
+linear = nn.Linear(m, n)
+torch.nn.init._calculate_fan_in_and_fan_out(
+        linear.weight)
+```
+* 方法二：单独计算fan_in和 fan_out
+``` python
+torch.nn.init._calculate_correct_fan(
+                linear.weight,
+                mode='fan_in')
+```
 ### 原论文notes
 [Delving Deep into Rectifiers: Surpassing Human-Level Performance on ImageNet Classification](https://arxiv.org/pdf/1502.01852.pdf)
 
