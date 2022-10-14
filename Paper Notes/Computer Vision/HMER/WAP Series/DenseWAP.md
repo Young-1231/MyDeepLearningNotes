@@ -44,3 +44,12 @@ $$
 &\hat{s_t}={\rm{GRU}}(y_{t-1},s_{t-1}) \\ &{\bf{cA_t}} =f_{catt}({\bf{A}, \hat{{\bf{s}}}}_t) \\ &{\bf{cB_t}}=f_{catt}({\bf{B}, \hat{s}}_t) \\ &{\bf{c}}_t = [{\bf{cA}}_t;{\bf{cB}}_t] \\ &{\bf{s}}_t = {\rm{GRU}}({\bf{c}}_t, \hat{{\bf{s}}}_t)
 \end{aligned}
 $$ ${\bf{s}}_{t-1}$ represents the previous decoder state, $\hat{\bf{s}}_t$ is the prediction of current decoder state, ${\bf{cA}}_t$ is the low-resolution context vector at decoding step $t$, similarly ${\bf{cB}}_t$ is the high-resolution context vector. The multi-scale context vector ${\bf{c}}_t$ is the concatenation and it performs as the input during the computation of current decoder state ${\bf{s}}_t$
+$f_{catt}$表示单一尺度下的coverage based attention model.我们以低分辨率下的${\bf{cA_t}}$作为例子，$f_{catt}$是一个MLP $$ \begin{aligned}
+& {\bf{F}}={\bf{Q}}* \sum\limits_{l=1}^{t-1}
+\alpha_l \\ & e_{ti}= v_{att}^T\tanh(U_s \hat{s}_t+U_a a_i + U_f f_i) \\ & \alpha_{ti}=\frac{\exp{(e_{ti})}}{\sum\limits_{k=1}^L \exp{(e_{tk}})} \\ & {\bf{cA_t}}=\sum\limits_{i=1}^{L}\alpha_i {\bf{a}}_i
+\end{aligned}  $$
+
+
+---
+#### TODOlist
+- [x] how to compute coverage vector
