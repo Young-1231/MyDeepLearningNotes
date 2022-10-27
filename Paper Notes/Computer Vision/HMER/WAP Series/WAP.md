@@ -15,13 +15,13 @@
         - insertion
     * 最后得到 WER = $$
 WER = \frac{N_{sub}^W+N_{del}^W+N_{ins}^W}{N^W} = \frac{N_{sub}^W+N_{del}^W+N_{ins}^W}{N_{sub}^W+N_{del}^W+N_{cor}^W}
-$$其中, $N_{sub}^W$: the number of substitutions $N_{del}^W$: the number of deletions $N_{ins}^W$: the number of insertions $N_{cor}^W$: the number of corrcts $N^W$: the number of words in the target
+$$其中, $N_{sub}^W$: the number of substitutions $N_{del}^W$: the number of deletions $N_{ins}^W$: the number of insertions $N_{cor}^W$: the number of corrects $N^W$: the number of words in the target
 
 ### Architecture
 
 #### Watch
 使用FCN来接收variable size的input image
-同时利用FCN来保持起feature map与input image中local region的关系(obtaion the level of correpondence)
+同时利用FCN来保持起feature map与input image中local region的关系(obtain the level of correspondence)
 使用FCN同时也有利于Parser有选择地对与图片的给定区域赋予相应的attention weight
 FCN encoder的输入是一个三维矩阵`shape` $H\times W\times D$.将这个三维矩阵沿着高宽维度上展平，得到$L=H\times W$个elements，其中每个element都是$D$维，最后得到和图片中local region相关的表征$$
 a=\{\bf{a_1},\cdots,b_L\}, a_i\in \mathbb{R}^D
@@ -30,7 +30,7 @@ $$
 #### Attend
 对于每一个由parser生成的word,整体图片未必都在提供有用的信息。从此意义上说，对于给定时间步$t$,原始图片中的一部分不应参与到当前$c_t$的计算。所以parser需要利用attention mechanism来知道对于生成下一时间步的word,model需要'focus'图片的哪一部分(即对于正确的annotation$\bf{a_i}$施加更大的attention weight)
 ##### Additive Attention
-对于以上需求，我们利用additive attention来对此种关系进行建模。将上一时间步的hidden state$h_{t-1}$作为query,将$\bf{a}_i$作为key,attention socring function即可描述为$$
+对于以上需求，我们利用additive attention来对此种关系进行建模。将上一时间步的hidden state$h_{t-1}$作为query,将$\bf{a}_i$作为key,attention scoring function即可描述为$$
 e_{ti}={\bf{v}_a^\top}\tanh(W_ah_{t-1}+U_a{\bf{a_i}})
 $$
 而attention weight即由下式给出$$
