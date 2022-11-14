@@ -21,3 +21,10 @@ $$ 而context vector也是采用与DWAP相同的计算方法
 
 ### Bi-directional Mutual Learning Module
 > 此部分为本文核心
+
+利用双向decoder来实现图片到$\LaTeX$序列的转化, L2R和R2L，互相学习得到的解码信息。双向decoder的结构是一样的，唯一区别就是在解码方向上。
+以下是双向decoder的一些训练细节：
+每一时间步$t$的预测由下式给出: 
+* L2R: $p(\overrightarrow{y}_t|\overrightarrow{y}_{t-1})=W_o\max(W_yE\overrightarrow{y}_{t-1}+W_h h_t +W_t  c_t)$
+* R2L: $p(\overleftarrow{y_t}|\overleftarrow{y}_{t-1})=W_o' \max(W_y'E'\overleftarrow{y}_{t-1}+W_h'h_t'+W_t'c_t')$
+Mutual Learning的实现: 去掉L2R和R2L branch输出中开始标志$<eos>和结束标志<sos>$, 再将R2L branch的输出反向, 
