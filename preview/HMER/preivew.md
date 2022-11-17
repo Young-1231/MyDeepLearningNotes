@@ -14,7 +14,7 @@ CROHME数据集是手写数学公式识别中使用最广泛的公共数据集�
 #### HME100K 
 HME100K是一个真实场景下的手写数学公式的数据集，其中训练集数量为74502, 测试集数量为24607.可识别的symbol class数量为249(此处存在问题，cite(CAN)论文中数量为249.而笔者从公开的HME100K版本symbol class数量为247). 
 HME100K具有的意义是提供了真实场景,会具有复杂多变的背景（例如，颜色，并存在模糊的情况）。
-HME100K的挑战即是真实场景下文
+HME100K的挑战与真实场景下文本识别(STN)
 * Complex background
 * Multiple colors, irregular fonts, different writing, stylesdifferent sizes, and diverse orientations
 * Distorted by nonuniform illumination, low resolution, and motion blurring
@@ -109,7 +109,27 @@ $$
 
 
 ##### Multi-Scale Attention with Dense Encoder
+HMER中存在以下问题:
+* CNN中的池化操作会减小feature map的分辨率。手写的数学符号的尺寸差别较大。所以提取到的feature map的精细细节对HMER很重要。然而低分辨率的特征图则会损失掉这些细节。
 
+针对此问题，作者在encoder中使用二分支，同时提供高分辨率和低分辨率的feature map。低分辨率feature map具有更大的感受野，提供了更加全局的语义信息，高分辨率feature map则具有更加精细的细节。
+
+主分支产生低分辨率的feature map($H\times W\times C$)。在最后一个池化层之前引出另一个分支，输出一个高分辨率的feature map($2H\times 2W\times C'$)。
+同WAP中方法，将feature map沿空间维度展平。得到低分辨率表征$A$, 高分辨率表征$B$
+$$
+\begin{aligned}
+&A = \{\mathbf{a}_1,\cdots,\mathbf{a}_L\} \quad \mathbf{a}_i \in \mathbb{R}^C \\
+&B = \{\mathbf{b}_1,\cdots,\mathbf{b}_{4L}\} \quad \mathbf{b}_i \in \mathbb{R}^{C'}
+\end{aligned}
+$$其中，$L=H\times W$
+
+采用两个单一尺度的coverage attention model（同WAP） 来分别生成低分辨率和高分辨率下的context vector，并将这两个不同分辨率的context vector拼接起来作为多尺度context vector。
+$$
+\begin{aligned}
+&\hat{s_t}={\rm{GRU}}(y_{t-1},s_{t-1}) \\ &{\bf{cA_t}} =f_{catt}({\bf{A}, \hat{{\bf{s}}}}_t) \\ &{\bf{cB_t}}=f_{catt}({\bf{B}, \hat{s}}_t) \\ &{\bf{c}}_t = [{\bf{cA}}_t;{\bf{cB}}_t] \\ &{\bf{s}}_t = {\rm{GRU}}({\bf{c}}_t, \hat{{\bf{s}}}_t)
+\end{aligned}
+$$
+${\bf{s}}_{t-1}$表示上一时间步的解码器状态, $\hat{\bf{s}}_t$是当前解码器状态的预测值, ${\bf{cA}}_t$ 是t时刻的低分辨率的context vector$t$, 同理${\bf{cB}}_t$是高分辨率的context vector
 
 #### ABM
 
