@@ -3,7 +3,7 @@
 
 
 ### Introduction
-
+数学表达式是描述包括数学，物理在内的许多领域所不可缺少的。同时，随着移动设备的普及，人们已经开始使用手写数学公式作为一种自然的输入模式。同时，随着手写笔，平板电脑和智能手机等移动设备的普及，人们也逐渐开始使用手写的数学符号作为输入。手写数学表达式识别具有广泛的应用场景，如智能教育，人机交互，作业评分，论文写作的辅助。尽管目前的OCR系统取得了巨大的成功，但由于公式的复杂结构和多样化的个人书写习惯，HMER仍然是一个非常具有挑战性的问题。
 
 
 ### Datasets
@@ -12,7 +12,7 @@
 CROHME数据集是手写数学公式识别中使用最广泛的公共数据集，产生于一个在线的手写数学公式识别的比赛(CROHME).CROHME数据集中训练集由以下三部分组成：CROHME 2014(986), CROHME 2016(1147), CROHME 2019(1199)。括号中为数学公式的数量。CROHME数据集中识别的symbol class数量为111,包括"eos"和"sos".
 
 #### HME100K 
-HME100K是一个真实场景下的手写数学公式的数据集，其中训练集数量为74502, 测试集数量为24607.可识别的symbol class数量为249(此处存在问题，cite(CAN)论文中数量为249.而笔者从公开的HME100K版本symbol class数量为247). 
+HME100K是一个真实场景下的手写数学公式的数据集，其中训练集数量为74502, 测试集数量为24607.可识别的symbol class数量为249(此处存在问题，cite(CAN)论文中数量为249.而笔者从公开的HME100K版本获取到的symbol class数量为247). 
 HME100K具有的意义是提供了真实场景,会具有复杂多变的背景（例如，颜色，并存在模糊的情况）。
 HME100K的挑战与真实场景下文本识别(STN)
 * Complex background
@@ -109,7 +109,7 @@ $$
 
 
 ##### Multi-Scale Attention with Dense Encoder
-HMER中存在以下问题:
+历史方法中存在以下问题:
 * CNN中的池化操作会减小feature map的分辨率。手写的数学符号的尺寸差别较大。所以提取到的feature map的精细细节对HMER很重要。然而低分辨率的特征图则会损失掉这些细节。
 
 针对此问题，作者在encoder中使用二分支，同时提供高分辨率和低分辨率的feature map。低分辨率feature map具有更大的感受野，提供了更加全局的语义信息，高分辨率feature map则具有更加精细的细节。
@@ -134,6 +134,27 @@ ${\bf{s}}_{t-1}$表示上一时间步的解码器状态, $\hat{\bf{s}}_t$是当�
 #### ABM
 
 #### CAN
+CAN针对的是大部分现有的方法采用的都是encoder-decoder架构，但是encoder-decoder方法并不能保证取得的准确率，尤其是当公式的结构比较复杂或者序列长度较长时。
+针对encoder-decoder方法所存在的问题，本文作者引入了symbol counting，并设计了一个弱监督的multi-scale counting module, 可以非常灵活的嵌入到其它网络结构中去。
+作者认为引入symbol counting主要有以下两个好处:
+* symbol counting和HMER两个任务实际上是互补的
+* counting的输出结果同时也可以作为一个额外的全局信息输入，可以提高识别的准确率。
+实际上，CAN即是向DWAP中嵌入了MSCM。
+本文所设计的counting module实际上是一个弱监督，并不需要额外的标注信息。
+
+
+
+##### Multi-scale Counting Module
+输入为2D特征图$\mathcal{F}\in \mathbb{R}^{H\times W\times 684}$, 首先经过一个$1\times 1$卷积来改变通道数，得到**transformed feature**$\mathcal{T}\in \mathbb{R}^{H\times W\times 512}$, 并加上固定的位置编码$\mathcal{P}\in \mathbb{R}^{H\times W\times 512}$。
+在decoding过程中，给定时间步$t$, 下式为attention weight($\alpha_t\in \mathbb{R}^{H\times W}$)的计算过程
+$$
+e_t = w^T\tanh(\mathcal{T}+\mathcal{P}+W_a\mathcal{A}+W_hh_t)+b\\
+\alpha_{t,ij}=\exp(e_{t,ij})/ \sum\limits_{p=1}^{H}\sum\limits_{q=1}^W e_{t,pq}
+$$
+将得到的attention weight $\alpha_t$ 和 feature map$\mathcal{F}$做spatial-wise product得到context vector $\mathcal{C}\in\mathbb{R}^{1\times 256}$.在之前的HMER方法中，$y_t$仅仅是由context vector$\mathcal{C}$, hidden state$h_t$, embedding$E(y_{t-1})$。最终$p(y_t)$即由下式给出$$
+p(y_t)={\text{softmax}}(w_o^T(W_c\mathcal{C}+W_v\mathcal{V}+W_th_t+W_eE)) + b_o\\
+y_t \sim p(y_t)
+$$
 
 #### BTTR
 
@@ -146,4 +167,13 @@ HMER作为Vision2Language，实际也是一个cross-modality任务，以下将�
 
 
 ### Experiment
+
+#### DWAP
+
+
+#### CAN
+采用的是\cite{CAN}开源的代码，超参数等相关设置沿用
+
+
+##### CROHME
 
